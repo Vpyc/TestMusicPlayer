@@ -31,7 +31,8 @@ class TrackListViewModel @Inject constructor(
                 _state.value = if (tracks.isNullOrEmpty()) {
                     TrackListState.Error("No tracks available")
                 } else {
-                    TrackListState.Success(tracks)
+                    val trackIds = tracks.map { it.id }
+                    TrackListState.Success(tracks, trackIds)
                 }
             } catch (e: Exception) {
                 _state.value = TrackListState.Error("Failed to load data: ${e.message}")

@@ -12,17 +12,17 @@ data class Tracks(
 data class Track(
     val id: Long,
     val title: String,
+    val preview: String,
     val duration: Int,
     val artist: Artist,
-    val album: Album
+    val album: Album,
 )
 
 data class Album(
-    val id: Int,
     val cover: String,
+    val title: String,
 )
 
 data class Artist(
-    val id: Int,
     val name: String,
 )
