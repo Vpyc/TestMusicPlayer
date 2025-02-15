@@ -5,6 +5,7 @@ import com.vpyc.testmusicplayer.data.ChartRepositoryImpl
 import com.vpyc.testmusicplayer.data.TrackRepository
 import com.vpyc.testmusicplayer.data.TrackRepositoryImpl
 import com.vpyc.testmusicplayer.retrofit.ChartApi
+import com.vpyc.testmusicplayer.retrofit.SearchApi
 import com.vpyc.testmusicplayer.retrofit.TrackApi
 import dagger.Module
 import dagger.Provides
@@ -14,12 +15,12 @@ import javax.inject.Singleton
 class DataModule {
     @Provides
     @Singleton
-    fun provideChartRepository(api: ChartApi): ChartRepository {
-        return ChartRepositoryImpl(api)
+    fun provideChartRepository(chartApi: ChartApi, searchApi: SearchApi): ChartRepository {
+        return ChartRepositoryImpl(chartApi, searchApi)
     }
     @Provides
     @Singleton
-    fun provideTrackRepository(api: TrackApi): TrackRepository {
-        return TrackRepositoryImpl(api)
+    fun provideTrackRepository(trackApi: TrackApi): TrackRepository {
+        return TrackRepositoryImpl(trackApi)
     }
 }

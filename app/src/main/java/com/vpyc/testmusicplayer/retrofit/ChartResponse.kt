@@ -1,7 +1,6 @@
 package com.vpyc.testmusicplayer.retrofit
 
 data class ChartResponse(
-    val total: Int,
     val tracks: Tracks
 )
 

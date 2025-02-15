@@ -3,6 +3,7 @@ package com.vpyc.testmusicplayer.di
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.vpyc.testmusicplayer.retrofit.ChartApi
+import com.vpyc.testmusicplayer.retrofit.SearchApi
 import com.vpyc.testmusicplayer.retrofit.TrackApi
 import dagger.Module
 import dagger.Provides
@@ -57,5 +58,11 @@ class NetworkModule {
     @Singleton
     fun provideTrackApi(retrofit: Retrofit): TrackApi {
         return retrofit.create(TrackApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSearchApi(retrofit: Retrofit): SearchApi {
+        return retrofit.create(SearchApi::class.java)
     }
 }
