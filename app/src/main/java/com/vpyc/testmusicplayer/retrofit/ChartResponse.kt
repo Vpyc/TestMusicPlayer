@@ -12,7 +12,7 @@ data class Track(
     val id: Long,
     val title: String,
     val preview: String,
-    val duration: Int,
+    val duration: Long,
     val artist: Artist,
     val album: Album,
 )
