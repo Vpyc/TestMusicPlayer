@@ -36,9 +36,11 @@ fun Main(viewModelFactory: ViewModelProvider.Factory) {
                 TrackListScreen(
                     viewModelFactory = viewModelFactory,
                     isLocal = false,
-                    onTrackClick = { trackId, trackIds ->
+                    onTrackClick = { trackId, trackIds, isLocal ->
                         val idsString = trackIds.joinToString(",")
-                        navController.navigate(NavRoutes.Player.createRoute(idsString, trackId))
+                        navController.navigate(NavRoutes.Player.createRoute(
+                            idsString, trackId, isLocal
+                        ))
                     }
                 )
             }
@@ -46,9 +48,11 @@ fun Main(viewModelFactory: ViewModelProvider.Factory) {
                 TrackListScreen(
                     viewModelFactory = viewModelFactory,
                     isLocal = true,
-                    onTrackClick = { trackId, trackIds ->
+                    onTrackClick = { trackId, trackIds, isLocal ->
                         val idsString = trackIds.joinToString(",")
-                        navController.navigate(NavRoutes.Player.createRoute(idsString, trackId))
+                        navController.navigate(NavRoutes.Player.createRoute(
+                            idsString, trackId, isLocal
+                        ))
                     }
                 )
             }
@@ -56,17 +60,20 @@ fun Main(viewModelFactory: ViewModelProvider.Factory) {
                 route = NavRoutes.Player.route,
                 arguments = listOf(
                     navArgument("trackIds") { type = NavType.StringType },
-                    navArgument("currentTrackId") { type = NavType.LongType }
+                    navArgument("currentTrackId") { type = NavType.LongType },
+                    navArgument("isLocal") { type = NavType.BoolType }
                 )
             ) { backStackEntry ->
                 val trackIdsString = backStackEntry.arguments?.getString("trackIds") ?: ""
                 val trackIds = trackIdsString.split(",").map { it.toLong() }
                 val currentTrackId = backStackEntry.arguments?.getLong("currentTrackId") ?: 0L
+                val isLocal = backStackEntry.arguments?.getBoolean("isLocal") ?: true
 
                 PlayerView(
                     viewModelFactory = viewModelFactory,
                     trackIds = trackIds,
-                    currentTrackId = currentTrackId
+                    currentTrackId = currentTrackId,
+                    isLocal = isLocal
                 )
             }
         }

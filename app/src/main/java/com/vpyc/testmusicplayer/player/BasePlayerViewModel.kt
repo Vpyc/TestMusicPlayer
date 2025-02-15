@@ -5,17 +5,16 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import com.vpyc.testmusicplayer.data.TrackRepository
+import com.vpyc.testmusicplayer.retrofit.Track
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class PlayerViewModel @Inject constructor(
-    private val repository: TrackRepository,
+abstract class BasePlayerViewModel(
     private val exoPlayer: ExoPlayer
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PlayerUiState(null))
@@ -33,6 +32,9 @@ class PlayerViewModel @Inject constructor(
         addPlayerListener()
     }
 
+    // Абстрактный метод для получения трека по id
+    protected abstract suspend fun fetchTrack(trackId: Long): Track?
+
     private fun handleIntents() {
         viewModelScope.launch {
             intent.collect { playerIntent ->
@@ -48,6 +50,24 @@ class PlayerViewModel @Inject constructor(
                     is PlayerIntent.Previous -> playPreviousTrack()
                     is PlayerIntent.Seek -> seekTo(playerIntent.position)
                 }
+            }
+        }
+    }
+
+    protected fun loadTrack(trackId: Long) {
+        viewModelScope.launch {
+            val track = fetchTrack(trackId)
+            _uiState.value = _uiState.value.copy(track = track)
+            track?.let {
+                exoPlayer.setMediaItem(
+                    MediaItem.Builder()
+                        .setUri(it.preview) // поле preview содержит URI (как для API, так и для локальных треков)
+                        .setMediaId(trackId.toString())
+                        .build()
+                )
+                exoPlayer.prepare()
+                exoPlayer.play()
+                updateUiState(isPlaying = true)
             }
         }
     }
@@ -78,24 +98,6 @@ class PlayerViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(currentPosition = position)
     }
 
-    private fun loadTrack(trackId: Long) {
-        viewModelScope.launch {
-            val track = repository.getTrackById(trackId)
-            _uiState.value = _uiState.value.copy(track = track)
-            track?.let {
-                exoPlayer.setMediaItem(
-                    MediaItem.Builder()
-                        .setUri(it.preview)
-                        .setMediaId(trackId.toString())
-                        .build()
-                )
-                exoPlayer.prepare()
-                exoPlayer.play()
-                updateUiState(isPlaying = true)
-            }
-        }
-    }
-
     private fun observePlayerPosition() {
         viewModelScope.launch {
             while (true) {
@@ -105,14 +107,8 @@ class PlayerViewModel @Inject constructor(
                     duration = duration,
                     currentPosition = currentPosition
                 )
-                kotlinx.coroutines.delay(500L)
+                delay(500L)
             }
-        }
-    }
-
-    fun onIntent(intent: PlayerIntent) {
-        viewModelScope.launch {
-            _intent.emit(intent)
         }
     }
 
@@ -126,8 +122,13 @@ class PlayerViewModel @Inject constructor(
         })
     }
 
-    private fun updateUiState(isPlaying: Boolean) {
+    protected fun updateUiState(isPlaying: Boolean) {
         _uiState.value = _uiState.value.copy(isPlaying = isPlaying)
     }
 
+    fun onIntent(intent: PlayerIntent) {
+        viewModelScope.launch {
+            _intent.emit(intent)
+        }
+    }
 }

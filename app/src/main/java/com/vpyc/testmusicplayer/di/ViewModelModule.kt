@@ -2,7 +2,8 @@ package com.vpyc.testmusicplayer.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vpyc.testmusicplayer.player.PlayerViewModel
+import com.vpyc.testmusicplayer.player.LocalPlayerViewModel
+import com.vpyc.testmusicplayer.player.OnlinePlayerViewModel
 import com.vpyc.testmusicplayer.tracklist.LocalTrackListViewModel
 import com.vpyc.testmusicplayer.tracklist.OnlineTrackListViewModel
 import dagger.Binds
@@ -26,8 +27,13 @@ abstract class ViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(PlayerViewModel::class)
-    abstract fun bindPlayerViewModel(viewModel: PlayerViewModel): ViewModel
+    @ViewModelKey(OnlinePlayerViewModel::class)
+    abstract fun bindOnlinePlayerViewModel(viewModel: OnlinePlayerViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(LocalPlayerViewModel::class)
+    abstract fun bindLocalViewModel(viewModel: LocalPlayerViewModel): ViewModel
 
 
     @Binds

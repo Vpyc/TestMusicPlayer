@@ -6,9 +6,11 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class NavRoutes(val route: String) {
-    object Player : NavRoutes("player?trackIds={trackIds}&currentTrackId={currentTrackId}") {
-        fun createRoute(trackIds: String, currentTrackId: Long) =
-            "player?trackIds=$trackIds&currentTrackId=$currentTrackId"
+    object Player : NavRoutes(
+        "player?trackIds={trackIds}&currentTrackId={currentTrackId}&isLocal={isLocal}"
+    ) {
+        fun createRoute(trackIds: String, currentTrackId: Long, isLocal: Boolean) =
+            "player?trackIds=$trackIds&currentTrackId=$currentTrackId&isLocal=$isLocal"
     }
 }
 

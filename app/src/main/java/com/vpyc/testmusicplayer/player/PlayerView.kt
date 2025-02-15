@@ -31,9 +31,12 @@ import coil.compose.AsyncImage
 fun PlayerView(
     viewModelFactory: ViewModelProvider.Factory,
     trackIds: List<Long>,
-    currentTrackId: Long
+    currentTrackId: Long,
+    isLocal: Boolean,
 ) {
-    val viewModel: PlayerViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: BasePlayerViewModel = if (isLocal)
+        viewModel<LocalPlayerViewModel>(factory = viewModelFactory)
+    else viewModel<OnlinePlayerViewModel>(factory = viewModelFactory)
 
     LaunchedEffect(trackIds, currentTrackId) {
         viewModel.onIntent(

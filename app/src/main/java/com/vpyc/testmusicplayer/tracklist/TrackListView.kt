@@ -32,7 +32,7 @@ import com.vpyc.testmusicplayer.customView.IsLoading
 fun TrackListScreen(
     viewModelFactory: ViewModelProvider.Factory,
     isLocal: Boolean,
-    onTrackClick: (Long, List<Long>) -> Unit
+    onTrackClick: (Long, List<Long>, Boolean) -> Unit
 ) {
     val viewModel: BaseTrackListViewModel = if (isLocal) {
         viewModel<LocalTrackListViewModel>(factory = viewModelFactory)
@@ -75,6 +75,7 @@ fun TrackListScreen(
                             trackName = track.title,
                             artistName = track.artist.name,
                             imageUrl = track.album.cover,
+                            isLocal = isLocal,
                             onTrackClick = onTrackClick
                         )
                     }
@@ -93,13 +94,14 @@ fun TrackCard(trackId: Long,
               trackName: String,
               artistName: String,
               imageUrl: String,
-              onTrackClick: (Long, List<Long>) -> Unit)
+              isLocal: Boolean,
+              onTrackClick: (Long, List<Long>, Boolean) -> Unit)
 {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onTrackClick(trackId, allIds) }
+            .clickable { onTrackClick(trackId, allIds, isLocal) }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
