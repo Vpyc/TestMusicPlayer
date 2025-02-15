@@ -31,9 +31,15 @@ import com.vpyc.testmusicplayer.customView.IsLoading
 @Composable
 fun TrackListScreen(
     viewModelFactory: ViewModelProvider.Factory,
+    isLocal: Boolean,
     onTrackClick: (Long, List<Long>) -> Unit
 ) {
-    val viewModel: TrackListViewModel = viewModel(factory = viewModelFactory)
+    val viewModel: BaseTrackListViewModel = if (isLocal) {
+        viewModel<LocalTrackListViewModel>(factory = viewModelFactory)
+    } else {
+        viewModel<OnlineTrackListViewModel>(factory = viewModelFactory)
+    }
+
     val state = viewModel.state.value
     var searchQuery by remember { mutableStateOf("") }
 

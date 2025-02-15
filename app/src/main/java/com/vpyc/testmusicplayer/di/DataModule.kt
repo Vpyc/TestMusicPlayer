@@ -1,7 +1,9 @@
 package com.vpyc.testmusicplayer.di
 
+import android.content.Context
 import com.vpyc.testmusicplayer.data.ChartRepository
 import com.vpyc.testmusicplayer.data.ChartRepositoryImpl
+import com.vpyc.testmusicplayer.data.ContentResolverHelper
 import com.vpyc.testmusicplayer.data.TrackRepository
 import com.vpyc.testmusicplayer.data.TrackRepositoryImpl
 import com.vpyc.testmusicplayer.retrofit.ChartApi
@@ -23,4 +25,11 @@ class DataModule {
     fun provideTrackRepository(trackApi: TrackApi): TrackRepository {
         return TrackRepositoryImpl(trackApi)
     }
+    @Provides
+    @Singleton
+    fun provideContentResolverHelper(context: Context): ContentResolverHelper {
+        return ContentResolverHelper(context)
+    }
+
+
 }
