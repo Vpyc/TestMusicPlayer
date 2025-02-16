@@ -31,4 +31,14 @@ class LocalTracksRepository @Inject constructor(
             )
         }
     }
+
+    suspend fun getTrackById(id: Long): LocalTrack? {
+        return withContext(Dispatchers.IO) {
+            contentResolverHelper.queryTracks(
+                selection = "${MediaStore.Audio.Media._ID} = ?",
+                selectionArgs = arrayOf(id.toString()),
+                sortOrder = null
+            ).firstOrNull()
+        }
+    }
 }

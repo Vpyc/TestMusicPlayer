@@ -9,6 +9,7 @@ import com.vpyc.testmusicplayer.data.TrackRepositoryImpl
 import com.vpyc.testmusicplayer.retrofit.ChartApi
 import com.vpyc.testmusicplayer.retrofit.SearchApi
 import com.vpyc.testmusicplayer.retrofit.TrackApi
+import com.vpyc.testmusicplayer.service.MusicRepository
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -31,5 +32,10 @@ class DataModule {
         return ContentResolverHelper(context)
     }
 
+    @Provides
+    @Singleton
+    fun provideMusicRepository(context: Context): MusicRepository {
+        return MusicRepository(context)
+    }
 
 }

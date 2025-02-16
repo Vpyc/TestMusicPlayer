@@ -1,15 +1,15 @@
 package com.vpyc.testmusicplayer.tracklist
 
-import com.vpyc.testmusicplayer.data.LocalTrack
 import com.vpyc.testmusicplayer.data.LocalTracksRepository
-import com.vpyc.testmusicplayer.retrofit.Album
-import com.vpyc.testmusicplayer.retrofit.Artist
+import com.vpyc.testmusicplayer.data.toCommonTrack
 import com.vpyc.testmusicplayer.retrofit.Track
+import com.vpyc.testmusicplayer.service.MusicRepository
 import javax.inject.Inject
 
 class LocalTrackListViewModel @Inject constructor(
-    private val localTracksRepository: LocalTracksRepository
-) : BaseTrackListViewModel() {
+    private val localTracksRepository: LocalTracksRepository,
+    musicRepository: MusicRepository
+) : BaseTrackListViewModel(musicRepository) {
 
     override suspend fun getTracks(query: String): List<Track>? {
         return if (query.isBlank()) {
@@ -19,15 +19,4 @@ class LocalTrackListViewModel @Inject constructor(
         }
     }
 
-}
-
-private fun LocalTrack.toCommonTrack(): Track {
-    return Track(
-        id = this.id,
-        title = this.title,
-        preview = this.uri.toString(),
-        duration = this.duration,
-        artist = Artist(name = this.artist),
-        album = Album(cover = this.albumArt?.toString() ?: "", this.albumName)
-    )
 }
