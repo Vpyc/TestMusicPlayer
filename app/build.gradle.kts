@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -51,6 +52,9 @@ android {
 }
 
 dependencies {
+    implementation("androidx.media:media:1.7.0")
+    implementation("com.google.android.exoplayer:extension-mediasession:2.19.1")
+
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-exoplayer-dash:1.3.1")
     implementation("androidx.media3:media3-ui:1.3.1")

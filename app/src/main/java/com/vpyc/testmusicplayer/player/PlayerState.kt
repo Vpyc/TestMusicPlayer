@@ -10,10 +10,6 @@ data class PlayerUiState(
 )
 
 sealed class PlayerIntent {
-    data class LoadTrackWithContext(
-        val trackIds: List<Long>,
-        val currentTrackId: Long
-    ) : PlayerIntent()
     object PlayPause : PlayerIntent()
     object Next : PlayerIntent()
     object Previous : PlayerIntent()

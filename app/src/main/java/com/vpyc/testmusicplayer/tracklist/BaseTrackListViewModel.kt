@@ -4,9 +4,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vpyc.testmusicplayer.retrofit.Track
+import com.vpyc.testmusicplayer.service.MusicRepository
 import kotlinx.coroutines.launch
 
-abstract class BaseTrackListViewModel: ViewModel() {
+abstract class BaseTrackListViewModel(
+    private val musicRepository: MusicRepository
+): ViewModel() {
     protected val _state = mutableStateOf<TrackListState>(TrackListState.Loading)
     val state get() = _state
 
@@ -45,5 +48,9 @@ abstract class BaseTrackListViewModel: ViewModel() {
                 searchQuery = query
             )
         }
+    }
+
+    fun onTrackClick(currentTrack: Track, tracks: List<Track>) {
+        musicRepository.loadTracks(currentTrack, tracks)
     }
 }

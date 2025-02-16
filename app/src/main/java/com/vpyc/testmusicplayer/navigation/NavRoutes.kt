@@ -1,20 +1,18 @@
 package com.vpyc.testmusicplayer.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.vpyc.testmusicplayer.R
 
 sealed class NavRoutes(val route: String) {
     object Player : NavRoutes(
-        "player?trackIds={trackIds}&currentTrackId={currentTrackId}&isLocal={isLocal}"
+        "player?track={track}"
     ) {
-        fun createRoute(trackIds: String, currentTrackId: Long, isLocal: Boolean) =
-            "player?trackIds=$trackIds&currentTrackId=$currentTrackId&isLocal=$isLocal"
+        fun createRoute(track: Long): String {
+            return "player?track=$track"
+        }
     }
 }
 
-enum class NavRoute(val route: String, val icon: ImageVector) {
-    LOCAL_TRACKS("local_tracks", Icons.Default.Menu),
-    ONLINE_TRACKS("online_tracks", Icons.Default.CheckCircle)
+enum class NavRoute(val route: String, val icon: Int, val title: String) {
+    LOCAL_TRACKS("local_tracks", R.drawable.ic_local, "Локальные треки"),
+    ONLINE_TRACKS("online_tracks", R.drawable.ic_api, "Треки из API")
 }

@@ -22,17 +22,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.vpyc.testmusicplayer.R
 import com.vpyc.testmusicplayer.customView.IsLoading
+import com.vpyc.testmusicplayer.retrofit.Track
 
 @Composable
 fun TrackListScreen(
     viewModelFactory: ViewModelProvider.Factory,
     isLocal: Boolean,
-    onTrackClick: (Long, List<Long>, Boolean) -> Unit
+    onTrackClick: (Long) -> Unit
 ) {
     val viewModel: BaseTrackListViewModel = if (isLocal) {
         viewModel<LocalTrackListViewModel>(factory = viewModelFactory)
@@ -66,17 +69,13 @@ fun TrackListScreen(
             }
             is TrackListState.Success -> {
                 val tracks = state.tracks
-                val allIds = state.trackIds
                 LazyColumn {
                     items(tracks) { track ->
                         TrackCard(
-                            trackId = track.id,
-                            allIds = allIds,
-                            trackName = track.title,
-                            artistName = track.artist.name,
-                            imageUrl = track.album.cover,
-                            isLocal = isLocal,
-                            onTrackClick = onTrackClick
+                            track = track,
+                            allTracks = tracks,
+                            onTrackClick = onTrackClick,
+                            viewModel
                         )
                     }
                 }
@@ -89,30 +88,32 @@ fun TrackListScreen(
 }
 
 @Composable
-fun TrackCard(trackId: Long,
-              allIds: List<Long>,
-              trackName: String,
-              artistName: String,
-              imageUrl: String,
-              isLocal: Boolean,
-              onTrackClick: (Long, List<Long>, Boolean) -> Unit)
+fun TrackCard(track: Track,
+              allTracks: List<Track>,
+              onTrackClick: (Long) -> Unit,
+              viewModel: BaseTrackListViewModel)
 {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onTrackClick(trackId, allIds, isLocal) }
+            .clickable {
+                viewModel.onTrackClick(track, allTracks)
+                onTrackClick( track.id )
+            }
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
-                model = imageUrl,
+                model = track.album.cover,
                 contentDescription = null,
-                modifier = Modifier.size(64.dp)
+                modifier = Modifier.size(64.dp),
+                placeholder = painterResource(id = R.drawable.ic_album),
+                error = painterResource(id = R.drawable.ic_album)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text(text = trackName, style = MaterialTheme.typography.bodyLarge)
-                Text(text = artistName, style = MaterialTheme.typography.bodyMedium)
+                Text(text = track.title, style = MaterialTheme.typography.bodyLarge)
+                Text(text = track.artist.name, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

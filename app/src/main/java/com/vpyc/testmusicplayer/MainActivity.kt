@@ -1,6 +1,7 @@
 package com.vpyc.testmusicplayer
 
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,7 +17,9 @@ import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
 
-    private val REQUEST_CODE_PERMISSIONS = 1001
+    companion object {
+        private const val REQUEST_CODE_PERMISSIONS = 1001
+    }
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -24,12 +27,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permissionsToRequest = mutableListOf<String>()
             if (checkSelfPermission(android.Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                    arrayOf(android.Manifest.permission.READ_MEDIA_AUDIO),
-                    REQUEST_CODE_PERMISSIONS
-                )
+                permissionsToRequest.add(android.Manifest.permission.READ_MEDIA_AUDIO)
+            }
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+            if (permissionsToRequest.isNotEmpty()) {
+                requestPermissions(permissionsToRequest.toTypedArray(), REQUEST_CODE_PERMISSIONS)
             }
         } else {
             if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
