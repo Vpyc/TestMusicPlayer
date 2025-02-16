@@ -53,4 +53,9 @@ abstract class BaseTrackListViewModel(
     fun onTrackClick(currentTrack: Track, tracks: List<Track>) {
         musicRepository.loadTracks(currentTrack, tracks)
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        musicRepository.release()
+    }
 }

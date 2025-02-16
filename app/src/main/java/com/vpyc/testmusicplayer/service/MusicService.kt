@@ -19,9 +19,11 @@ import com.vpyc.testmusicplayer.player.PlayerUiState
 import com.vpyc.testmusicplayer.retrofit.Track
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class MusicService : Service() {
@@ -36,7 +38,19 @@ class MusicService : Service() {
     private var currentTrackIndex: Int = 0
     private var currentTrack: Track? = null
 
-    private val scope = CoroutineScope(Dispatchers.Main)
+    private var isServiceRunning = false
+    private val job = Job()
+
+    private val scope = CoroutineScope(Dispatchers.Main + job)
+
+    private val playerListener = object: Player.Listener {
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            if (playbackState == Player.STATE_ENDED) {
+                playNextTrack()
+            }
+            updateTrackState()
+        }
+    }
 
     inner class MusicBinder : Binder() {
         fun getService(): MusicService = this@MusicService
@@ -44,16 +58,10 @@ class MusicService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        isServiceRunning = true
 
         exoPlayer = ExoPlayer.Builder(this).build()
-        exoPlayer.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(playbackState: Int) {
-                if (playbackState == Player.STATE_ENDED) {
-                    playNextTrack()
-                }
-                updateTrackState()
-            }
-        })
+        exoPlayer.addListener(playerListener)
 
         observeCurrentDuration()
         createNotificationChannel()
@@ -71,6 +79,10 @@ class MusicService : Service() {
                 }
             }
 
+            STOP_SERVICE -> {
+                cleanupAndStop()
+            }
+
             PLAY_PAUSE -> {
                 togglePlayPause()
             }
@@ -83,12 +95,29 @@ class MusicService : Service() {
                 playNextTrack()
             }
         }
-        return START_STICKY
+        return START_NOT_STICKY
+    }
+
+    private fun cleanupAndStop() {
+        if (!isServiceRunning) return
+
+        isServiceRunning = false
+
+        job.cancel()
+
+        exoPlayer.removeListener(playerListener)
+        exoPlayer.stop()
+        exoPlayer.release()
+
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(NOTIFICATION_ID)
+
+        stopSelf()
     }
 
     private fun observeCurrentDuration() {
         scope.launch {
-            while (true) {
+            while (isActive && isServiceRunning) {
                 updateTrackState()
                 delay(1000)
             }
@@ -174,7 +203,7 @@ class MusicService : Service() {
     }
 
     override fun onDestroy() {
-        exoPlayer.release()
+        cleanupAndStop()
         super.onDestroy()
     }
 
@@ -208,6 +237,7 @@ class MusicService : Service() {
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setShowActionsInCompactView(0, 1, 2)
             )
+            .setDeleteIntent(createDeletePendingIntent())
             .build()
     }
 
@@ -238,9 +268,19 @@ class MusicService : Service() {
         )
     }
 
+    private fun createDeletePendingIntent(): PendingIntent {
+        val stopIntent = Intent(this, MusicService::class.java).apply {
+            action = STOP_SERVICE
+        }
+        return PendingIntent.getService(
+            this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
+        )
+    }
+
     companion object {
         const val ACTION_PLAY = "ACTION_LOAD"
         const val PREV = "PREV"
+        const val STOP_SERVICE = "STOP_SERVICE"
         const val PLAY_PAUSE = "PLAY_PAUSE"
         const val NEXT = "NEXT"
         const val EXTRA_CURRENT_TRACK = "EXTRA_CURRENT_TRACK"

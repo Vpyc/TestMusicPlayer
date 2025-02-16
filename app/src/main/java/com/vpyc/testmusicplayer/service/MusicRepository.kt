@@ -31,6 +31,14 @@ class MusicRepository @Inject constructor(
         }
     }
 
+    fun release() {
+        if (isBound) {
+            context.unbindService(connection)
+            isBound = false
+            musicService = null
+        }
+    }
+
     fun loadTracks(currentTrack: Track, tracks: List<Track>) {
         val intent = Intent(context, MusicService::class.java).apply {
             action = MusicService.ACTION_PLAY
